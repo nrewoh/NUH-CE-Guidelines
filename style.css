@@ -251,9 +251,4 @@ html, body {
     flex: 1;             /* Takes up the remaining 65% */
     height: 100%;
   }
-  
-  /* Optional: Hide previews on mobile to save space */
-  .doc-preview, .doc-meta {
-    display: none;
-  }
 }
