@@ -444,4 +444,9 @@ html, body {
 .viewer[hidden],
 .viewer-empty[hidden] {
   display: none !important;
+
+  /* Forces elements with the hidden attribute to stay hidden */
+[hidden] {
+  display: none !important;
+}
 }
