@@ -10,7 +10,9 @@
   let docById = new Map();
   let idx = null;
   let activeId = null;
-  const collapsedCategories = new Set();
+  // Categories are collapsed by default; this tracks which ones the user
+  // has explicitly expanded.
+  const expandedCategories = new Set();
 
   function escapeHtml(str) {
     return String(str)
@@ -78,7 +80,7 @@
     listEl.innerHTML = orderedCategories
       .map((category) => {
         const items = groups.get(category).map((doc) => docItemHtml(doc, terms, false)).join("");
-        const isOpen = !collapsedCategories.has(category);
+        const isOpen = expandedCategories.has(category);
         return `
           <details class="category-group" data-category="${escapeHtml(category)}" ${isOpen ? "open" : ""}>
             <summary class="category-header">${escapeHtml(category)}</summary>
@@ -91,8 +93,8 @@
     listEl.querySelectorAll("details.category-group").forEach((details) => {
       details.addEventListener("toggle", () => {
         const category = details.dataset.category;
-        if (details.open) collapsedCategories.delete(category);
-        else collapsedCategories.add(category);
+        if (details.open) expandedCategories.add(category);
+        else expandedCategories.delete(category);
       });
     });
   }
