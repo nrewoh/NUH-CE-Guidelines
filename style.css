@@ -379,6 +379,11 @@ html, body {
   height: 100%;
 }
 
+/* Forces the element to respect the hidden attribute over the flex layout */
+#viewer-loading[hidden] {
+  display: none !important;
+}
+
 #viewer-loading {
   position: absolute;
   inset: 0;
@@ -390,7 +395,6 @@ html, body {
   background: var(--paper);
   z-index: 2;
 }
-
 /* Clean Slide-out Navigation responsive handling */
 @media (max-width: 800px) {
   .sidebar {
