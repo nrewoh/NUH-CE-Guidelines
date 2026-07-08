@@ -1,81 +1,103 @@
 :root {
-  --bg: #ffffff;
-  --sidebar-bg: #f7f7f8;
-  --border: #e3e3e6;
-  --text: #1f1f24;
-  --text-muted: #6b6b76;
-  --accent: #5b5bd6;
-  --accent-bg: #eeeeff;
+  --ink: #0F2530;
+  --ink-soft: #16323F;
+  --paper: #F7F8F7;
+  --panel: #FFFFFF;
+  --line: #E1E6E5;
+  --teal: #1D7A6E;
+  --teal-dim: #E4F1EE;
+  --amber: #B9701F;
+  --text: #1A2327;
+  --text-dim: #5B6A6E;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --radius: 8px;
 }
 
 * { box-sizing: border-box; }
-[hidden] {
-  display: none !important;
-}
 
 html, body {
   height: 100%;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-family: var(--sans);
   color: var(--text);
-  background: var(--bg);
+  background: var(--paper);
 }
 
 .layout {
   display: flex;
   height: 100vh;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Sidebar */
+/* Closeable Backdrop Cover overlay for cellular devices */
+#scrim {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 37, 48, 0.4);
+  z-index: 90;
+}
+.layout.sidebar-open #scrim {
+  display: block;
+}
+
+/* Sidebar Styling upgraded with dark professional scheme */
 .sidebar {
   width: 340px;
   flex-shrink: 0;
-  background: var(--sidebar-bg);
-  border-right: 1px solid var(--border);
+  background: var(--ink);
+  color: #E7ECEA;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: transform 0.22s ease;
+  z-index: 100;
 }
 
 .sidebar-header {
   padding: 20px 16px 12px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .sidebar-header h1 {
   font-size: 16px;
   font-weight: 600;
   margin: 0 0 12px;
+  color: #ffffff;
 }
 
 .search-box {
   position: relative;
   display: flex;
   align-items: center;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 7px;
+  overflow: hidden;
 }
 
 .search-icon {
   position: absolute;
   left: 10px;
-  color: var(--text-muted);
+  color: #8CA19D;
   pointer-events: none;
 }
 
 #search-input {
   width: 100%;
-  padding: 8px 30px 8px 32px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font-size: 14px;
-  background: var(--bg);
-  color: var(--text);
+  padding: 9px 30px 9px 32px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  color: #ffffff;
+  outline: none;
 }
 
-#search-input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-bg);
+#search-input::placeholder {
+  color: #8CA19D;
 }
 
 .clear-btn {
@@ -85,7 +107,7 @@ html, body {
   border: none;
   font-size: 18px;
   line-height: 1;
-  color: var(--text-muted);
+  color: #8CA19D;
   cursor: pointer;
   padding: 4px 6px;
   display: none;
@@ -93,16 +115,16 @@ html, body {
 }
 
 .clear-btn.visible { display: block; }
-.clear-btn:hover { background: var(--border); }
+.clear-btn:hover { background: rgba(255, 255, 255, 0.1); }
 
 .result-count {
   font-size: 12px;
-  color: var(--text-muted);
+  color: #8CA19D;
   margin-top: 8px;
   min-height: 16px;
 }
 
-/* Document list */
+/* Document Tree List Navigation items */
 .doc-list {
   list-style: none;
   margin: 0;
@@ -113,7 +135,7 @@ html, body {
 
 .doc-list .loading,
 .doc-list .empty {
-  color: var(--text-muted);
+  color: #8CA19D;
   font-size: 14px;
   padding: 16px 8px;
   text-align: center;
@@ -125,7 +147,7 @@ html, body {
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: #8CA19D;
   padding: 14px 12px 6px;
 }
 
@@ -140,8 +162,8 @@ html, body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  color: var(--accent);
-  background: var(--accent-bg);
+  color: var(--teal-dim);
+  background: var(--teal);
   border-radius: 4px;
   padding: 1px 6px;
   vertical-align: middle;
@@ -154,33 +176,34 @@ html, body {
   margin-bottom: 2px;
   cursor: pointer;
   text-decoration: none;
-  color: inherit;
+  color: #D8E2DF;
 }
 
 .doc-item:hover {
-  background: var(--accent-bg);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .doc-item.active {
-  background: var(--accent-bg);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
 }
 
 .doc-title {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   margin: 0 0 4px;
-  color: var(--text);
+  color: #ffffff;
 }
 
 .doc-title mark {
-  background: #ffe58a;
-  color: inherit;
+  background: #3A6B60;
+  color: #ffffff;
   border-radius: 2px;
 }
 
 .doc-preview {
-  font-size: 12.5px;
-  color: var(--text-muted);
+  font-size: 12px;
+  color: #C4D0CD;
   margin: 0 0 4px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -189,21 +212,22 @@ html, body {
 }
 
 .doc-preview mark {
-  background: #ffe58a;
-  color: inherit;
+  background: #3A6B60;
+  color: #ffffff;
   border-radius: 2px;
 }
 
 .doc-meta {
   font-size: 11px;
-  color: var(--text-muted);
+  color: #6E8D87;
+  font-family: var(--mono);
 }
 
 .doc-item .open-link {
   display: inline-block;
   margin-top: 6px;
-  font-size: 12px;
-  color: var(--accent);
+  font-size: 11.5px;
+  color: var(--teal-dim);
   text-decoration: none;
 }
 
@@ -211,11 +235,12 @@ html, body {
   text-decoration: underline;
 }
 
-/* Main content / viewer */
+/* Right side content workspace panel */
 .content {
   flex: 1;
   position: relative;
-  background: #fafafa;
+  background: var(--paper);
+  min-width: 0;
 }
 
 .viewer-empty {
@@ -223,77 +248,162 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-muted);
+  color: var(--text-dim);
   font-size: 14px;
 }
 
-.viewer {
+/* Professional Document Workspace layout rules */
+#viewer-container {
   width: 100%;
   height: 100%;
-  border: none;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Desktop default: Hide the toggle button completely */
-.menu-toggle-btn {
-  display: none;
+#topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+  z-index: 5;
 }
 
-/* Mobile & Tablet view transitions */
+#topbar button {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+#topbar button:hover {
+  background: var(--teal-dim);
+  border-color: var(--teal);
+}
+
+#topbar button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+#topbar button:disabled:hover {
+  background: none;
+  border-color: var(--line);
+}
+
+.page-jump {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.page-jump input {
+  width: 48px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 5px 3px;
+  color: var(--text);
+}
+
+#active-doc-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+#zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+#zoom-pct {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--text-dim);
+  width: 42px;
+  text-align: center;
+}
+
+/* Continuous Scroll Window element container */
+#pdf-scroll-viewer {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  background: var(--paper);
+  position: relative;
+  padding: 20px 0;
+}
+
+#pages-container {
+  position: relative;
+  margin: 0 auto;
+}
+
+.page-slot {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(16,40,45,0.12), 0 8px 24px rgba(16,40,45,0.06);
+}
+
+.page-slot canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#viewer-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  font-size: 14px;
+  background: var(--paper);
+  z-index: 2;
+}
+
+/* Clean Slide-out Navigation responsive handling */
 @media (max-width: 800px) {
-  .layout {
-    position: relative;
-    overflow: hidden;
-    flex-direction: row; /* Keep side-by-side flow mechanically */
-  }
-
   .sidebar {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
-    width: 300px; /* Clean mobile scale width */
-    z-index: 100;
-    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
-    
-    /* Move layout off-screen to the left by default */
     transform: translateX(-100%);
-    transition: transform 0.3s ease;
   }
-
-  /* Slider activation state triggered by JS toggle */
   .layout.sidebar-open .sidebar {
     transform: translateX(0);
   }
-
-  .content {
-    width: 100%;
-    height: 100%;
-    flex: none; /* Prevents the hidden sidebar from compressing the layout */
-    padding-top: 52px; /* Leaves a neat safety gap for the floating button */
+  #active-doc-title {
+    display: none;
   }
-
-  /* Display and design the floating menu button on mobile devices */
-  .menu-toggle-btn {
-    display: flex;
-    align-items: center;
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 90;
-    background: var(--accent);
-    color: #ffffff;
-    border: none;
-    border-radius: var(--radius);
-    padding: 8px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(91, 91, 214, 0.25);
-    transition: background 0.2s ease;
-  }
-
-  .menu-toggle-btn:hover {
-    background: #4a4ab8;
-  }
-}
 }
