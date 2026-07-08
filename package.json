@@ -1,0 +1,14 @@
+{
+  "name": "pdf-library",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Static PDF library with sidebar directory and full-text search, deployed via GitHub Pages.",
+  "scripts": {
+    "build": "node scripts/build.js"
+  },
+  "dependencies": {
+    "lunr": "^2.3.9",
+    "pdfjs-dist": "^4.7.76"
+  }
+}
