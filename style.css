@@ -235,27 +235,12 @@ html, body {
   text-decoration: underline;
 }
 
-/* Right side content workspace panel */
+/* Upgraded content block into a vertical flex stack */
 .content {
   flex: 1;
   position: relative;
   background: var(--paper);
   min-width: 0;
-}
-
-.viewer-empty {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-dim);
-  font-size: 14px;
-}
-
-/* Professional Document Workspace layout rules */
-#viewer-container {
-  width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -269,6 +254,20 @@ html, body {
   border-bottom: 1px solid var(--line);
   flex-shrink: 0;
   z-index: 5;
+  height: 51px; /* Uniform height constraint */
+}
+
+/* New inner wrapper styling layout */
+.viewer-controls-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+#btn-menu {
+  display: none; /* Hidden by default on desktop monitors */
 }
 
 #topbar button {
@@ -299,6 +298,36 @@ html, body {
 #topbar button:disabled:hover {
   background: none;
   border-color: var(--line);
+}
+
+/* Flexible Viewports */
+.viewer-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+/* Responsive Breakpoints Rules */
+@media (max-width: 800px) {
+  #btn-menu {
+    display: flex; /* Safely expose the menu button on mobile layouts */
+  }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    transform: translateX(-100%);
+  }
+  .layout.sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+  #active-doc-title {
+    display: none;
+  }
 }
 
 .page-jump {
