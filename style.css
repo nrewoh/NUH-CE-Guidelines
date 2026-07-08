@@ -439,4 +439,9 @@ html, body {
   #active-doc-title {
     display: none;
   }
+
+  /* Forces the layout engine to respect hidden switches on the viewer components */
+.viewer[hidden],
+.viewer-empty[hidden] {
+  display: none !important;
 }
