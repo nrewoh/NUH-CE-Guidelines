@@ -375,20 +375,23 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dis
   });
 
   async function init() {
-    try {
-      const [indexJson, docsJson] = await Promise.all([
-        fetch("data/search-index.json").then((r) => r.json()),
-        fetch("data/documents.json").then((r) => r.json()),
-      ]);
-      documents = docsJson;
-      docById = new Map(documents.map((d) => [d.id, d]));
-      idx = lunr.Index.load(indexJson);
-      runSearch("");
-    } catch (err) {
-      console.error("Failed to load library:", err);
-      listEl.innerHTML = `<li class="empty">Could not load the library. Make sure the site was built (see README).</li>`;
-    }
+  try {
+    const [indexJson, docsJson] = await Promise.all([
+      fetch("data/search-index.json").then((r) => r.json()),
+      fetch("data/documents.json").then((r) => r.json()),
+    ]);
+    
+    // Fix: Safely force all IDs to strings so they match HTML dataset strings perfectly
+    documents = docsJson.map(d => ({ ...d, id: String(d.id) }));
+    
+    docById = new Map(documents.map((d) => [d.id, d]));
+    idx = lunr.Index.load(indexJson);
+    runSearch("");
+  } catch (err) {
+    console.error("Failed to load library:", err);
+    listEl.innerHTML = `<li class="empty">Could not load the library. Make sure the site was built (see README).</li>`;
   }
+}
 
   init();
 })();
