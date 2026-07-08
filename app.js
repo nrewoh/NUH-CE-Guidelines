@@ -8,8 +8,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dis
   const resultCount = document.getElementById("result-count");
   const viewerEmpty = document.getElementById("viewer-empty");
   
-  // Custom Canvas Viewer Elements
-  const viewerContainer = document.getElementById("viewer-container");
+  // Swap out the old viewerContainer assignments with these targets:
+  const viewerControls = document.getElementById("viewer-controls");
   const pdfScrollViewer = document.getElementById("pdf-scroll-viewer");
   const pagesContainer = document.getElementById("pages-container");
   const viewerLoading = document.getElementById("viewer-loading");
