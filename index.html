@@ -1,19 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-<title>NUH CE Guidelines</title>
-<link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF Library</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div class="layout">
-  <div id="scrim"></div>
-
+<div id="app-layout" class="layout">
   <aside class="sidebar">
     <div class="sidebar-header">
-      <h1>NUH CE Guidelines</h1>
+      <h1>PDF Library</h1>
       <div class="search-box">
         <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="7"></circle>
@@ -31,42 +29,20 @@
   </aside>
 
   <main class="content">
-  <!-- Topbar is now globally anchored so the menu button is always reachable -->
-  <div id="topbar">
-    <button id="btn-menu" title="Toggle Document Directory">☰</button>
-    
-    <!-- This inner wrapper holds document tools and hides when empty -->
-    <div id="viewer-controls" class="viewer-controls-wrap" hidden>
-      <div class="page-jump">
-        <button id="btn-prev" title="Previous page">‹</button>
-        <input id="page-input" type="text" value="1">
-        <span>/ <span id="page-count">…</span></span>
-        <button id="btn-next" title="Next page">›</button>
-      </div>
-      <div id="active-doc-title">Loading…</div>
-      <div id="zoom-controls">
-        <button id="btn-zoom-out" title="Zoom out">−</button>
-        <span id="zoom-pct">100%</span>
-        <button id="btn-zoom-in" title="Zoom in">+</button>
-        <button id="btn-fit" title="Fit width">⤢</button>
-      </div>
+    <div class="mobile-header">
+      <button id="btn-menu" class="menu-toggle-btn" title="Toggle Sidebar">☰ Menu</button>
+      <span class="mobile-app-title">PDF Library</span>
     </div>
-  </div>
-  
-  <!-- Unselected Default State -->
-  <div id="viewer-empty" class="viewer-empty">
-    <p>Select a document from the sidebar to preview it here.</p>
-  </div>
-  
-  <!-- Continuous Scroll Viewer Viewport Container -->
-  <div id="pdf-scroll-viewer" hidden>
-    <div id="pages-container"></div>
-    <div id="viewer-loading" hidden>Loading document pages…</div>
-  </div>
-</main>
+
+    <div id="viewer-empty" class="viewer-empty">
+      <p>Select a document from the sidebar to preview it here.</p>
+    </div>
+
+    <iframe id="viewer" class="viewer" title="PDF viewer" hidden></iframe>
+  </main>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.9/lunr.min.js"></script>
-<script type="module" src="app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
