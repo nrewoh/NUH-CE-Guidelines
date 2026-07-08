@@ -10,6 +10,7 @@
   let docById = new Map();
   let idx = null;
   let activeId = null;
+  const collapsedCategories = new Set();
 
   function escapeHtml(str) {
     return String(str)
@@ -47,17 +48,19 @@
       </li>`;
   }
 
-  // No active search: group into lettered/named category sections.
+  // No active search: group into collapsible <details> sections per category.
   // During a search: flat list (relevance order), with a small category tag
   // per result since matches can span categories.
   function renderList(docs, terms = []) {
     if (!docs.length) {
-      listEl.innerHTML = `<li class="empty">No documents match your search.</li>`;
+      listEl.innerHTML = `<div class="empty">No documents match your search.</div>`;
       return;
     }
 
     if (terms.length) {
-      listEl.innerHTML = docs.map((doc) => docItemHtml(doc, terms, true)).join("");
+      listEl.innerHTML = `<ul class="doc-items flat">${docs
+        .map((doc) => docItemHtml(doc, terms, true))
+        .join("")}</ul>`;
       return;
     }
 
@@ -75,11 +78,23 @@
     listEl.innerHTML = orderedCategories
       .map((category) => {
         const items = groups.get(category).map((doc) => docItemHtml(doc, terms, false)).join("");
+        const isOpen = !collapsedCategories.has(category);
         return `
-          <li class="category-header">${escapeHtml(category)}</li>
-          ${items}`;
+          <details class="category-group" data-category="${escapeHtml(category)}" ${isOpen ? "open" : ""}>
+            <summary class="category-header">${escapeHtml(category)}</summary>
+            <ul class="doc-items">${items}</ul>
+          </details>`;
       })
       .join("");
+
+    // Track collapsed/expanded state per category across re-renders.
+    listEl.querySelectorAll("details.category-group").forEach((details) => {
+      details.addEventListener("toggle", () => {
+        const category = details.dataset.category;
+        if (details.open) collapsedCategories.delete(category);
+        else collapsedCategories.add(category);
+      });
+    });
   }
 
   function openDoc(doc) {
@@ -166,7 +181,7 @@
       runSearch("");
     } catch (err) {
       console.error("Failed to load library:", err);
-      listEl.innerHTML = `<li class="empty">Could not load the library. Make sure the site was built (see README).</li>`;
+      listEl.innerHTML = `<div class="empty">Could not load the library. Make sure the site was built (see README).</div>`;
     }
   }
 
