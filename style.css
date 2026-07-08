@@ -233,10 +233,17 @@ html, body {
   border: none;
 }
 
+/* Desktop default: Hide the toggle button completely */
+.menu-toggle-btn {
+  display: none;
+}
+
+/* Mobile & Tablet view transitions */
 @media (max-width: 800px) {
   .layout {
     position: relative;
     overflow: hidden;
+    flex-direction: row; /* Keep side-by-side flow mechanically */
   }
 
   .sidebar {
@@ -244,23 +251,49 @@ html, body {
     top: 0;
     left: 0;
     bottom: 0;
-    width: 300px; /* Safe browsing width for mobile */
+    width: 300px; /* Clean mobile scale width */
     z-index: 100;
-    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
     
-    /* This hides the sidebar off-screen to the left */
+    /* Move layout off-screen to the left by default */
     transform: translateX(-100%);
     transition: transform 0.3s ease;
   }
 
-  /* When this class is added to .layout, the sidebar slides into view */
+  /* Slider activation state triggered by JS toggle */
   .layout.sidebar-open .sidebar {
     transform: translateX(0);
   }
 
   .content {
     width: 100%;
-    flex: none; /* Prevents the sidebar from shrinking the content */
+    height: 100%;
+    flex: none; /* Prevents the hidden sidebar from compressing the layout */
+    padding-top: 52px; /* Leaves a neat safety gap for the floating button */
+  }
+
+  /* Display and design the floating menu button on mobile devices */
+  .menu-toggle-btn {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 90;
+    background: var(--accent);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(91, 91, 214, 0.25);
+    transition: background 0.2s ease;
+  }
+
+  .menu-toggle-btn:hover {
+    background: #4a4ab8;
   }
 }
 }
