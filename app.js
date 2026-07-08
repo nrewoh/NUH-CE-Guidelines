@@ -112,10 +112,8 @@
       .querySelectorAll(".doc-item")
       .forEach((el) => el.classList.toggle("active", el.dataset.id === doc.id));
 
-    // Mobile Modification: Auto-closes the drawer layout once a document is chosen
-    if (layoutEl) {
-      layoutEl.classList.remove("sidebar-open");
-    }
+    // Collapse mobile drawer directory dynamically on selection
+    document.querySelector(".layout")?.classList.remove("sidebar-open");
   }
 
   function runSearch(query) {
@@ -181,9 +179,13 @@
   });
 
   // Mobile Modification: Clicking the button toggles drawer accessibility
-  if (menuToggleBtn && layoutEl) {
-    menuToggleBtn.addEventListener("click", () => {
-      layoutEl.classList.toggle("sidebar-open");
+  // Mobile UI Toggle Execution
+  const menuToggle = document.getElementById("menu-toggle");
+  const layoutContainer = document.querySelector(".layout");
+  
+  if (menuToggle && layoutContainer) {
+    menuToggle.addEventListener("click", () => {
+      layoutContainer.classList.toggle("sidebar-open");
     });
   }
 
