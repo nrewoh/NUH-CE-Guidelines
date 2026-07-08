@@ -1,10 +1,13 @@
 // scripts/build.js
 //
-// 1. Reads every .pdf in /pdfs
+// 1. Reads every .pdf in /pdfs, recursively — PDFs directly inside a
+//    subfolder of pdfs/ (e.g. "pdfs/A) Triage/foo.pdf") are grouped in the
+//    sidebar under that folder name as a category. PDFs sitting directly in
+//    pdfs/ (no subfolder) are grouped under "Uncategorized".
 // 2. Extracts title (PDF metadata, falling back to filename) + full text
 // 3. Builds a Lunr.js search index (title + text, title boosted)
 // 4. Writes dist/data/search-index.json (the index) and dist/data/documents.json
-//    (id, title, filename, path, preview snippet, page count)
+//    (id, title, filename, path, category, preview snippet, page count)
 // 5. Copies index.html, style.css, app.js, and the pdfs/ folder into dist/
 //
 // Run with: npm run build
@@ -18,6 +21,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const PDFS_DIR = path.join(ROOT, "pdfs");
 const DIST_DIR = path.join(ROOT, "dist");
+const UNCATEGORIZED = "Uncategorized";
 
 // pdfjs-dist legacy build works in Node without a DOM, as long as we only
 // extract text (no rendering to canvas).
@@ -68,6 +72,34 @@ async function extractPdf(filePath) {
   };
 }
 
+// Walks pdfs/ and returns [{ absPath, filename, category }]. A PDF's
+// category is the name of the immediate subfolder of pdfs/ it lives in
+// (only one level deep is treated as a category — nested subfolders beyond
+// that are still scanned, but folded into the same top-level category).
+function collectPdfs(dir) {
+  const results = [];
+
+  function walk(current, category) {
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const entryPath = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        const nextCategory = category === null ? entry.name : category;
+        walk(entryPath, nextCategory);
+      } else if (entry.isFile() && entry.name.toLowerCase().endsWith(".pdf")) {
+        results.push({
+          absPath: entryPath,
+          filename: entry.name,
+          relPath: path.relative(dir, entryPath),
+          category: category || UNCATEGORIZED,
+        });
+      }
+    }
+  }
+
+  walk(dir, null);
+  return results;
+}
+
 function copyRecursive(src, dest) {
   if (!fs.existsSync(src)) return;
   const stat = fs.statSync(src);
@@ -88,10 +120,7 @@ async function main() {
     process.exit(1);
   }
 
-  const files = fs
-    .readdirSync(PDFS_DIR)
-    .filter((f) => f.toLowerCase().endsWith(".pdf"))
-    .sort();
+  const files = collectPdfs(PDFS_DIR).sort((a, b) => a.relPath.localeCompare(b.relPath));
 
   if (files.length === 0) {
     console.warn("No PDF files found in pdfs/. Building an empty index.");
@@ -100,16 +129,19 @@ async function main() {
   const documents = [];
 
   for (let i = 0; i < files.length; i++) {
-    const filename = files[i];
-    const filePath = path.join(PDFS_DIR, filename);
-    process.stdout.write(`Processing ${filename} ... `);
+    const { absPath, filename, relPath, category } = files[i];
+    // Encode each path segment separately so folder/file names with spaces
+    // or special characters still resolve as a valid URL.
+    const urlPath = `pdfs/${relPath.split(path.sep).map(encodeURIComponent).join("/")}`;
+    process.stdout.write(`Processing ${relPath} ... `);
     try {
-      const { title, text, pageCount } = await extractPdf(filePath);
+      const { title, text, pageCount } = await extractPdf(absPath);
       documents.push({
         id: String(i),
         title,
         filename,
-        path: `pdfs/${encodeURIComponent(filename)}`,
+        category,
+        path: urlPath,
         pageCount,
         preview: text.slice(0, 260),
         text,
@@ -117,13 +149,14 @@ async function main() {
       console.log(`ok (${pageCount} pages, "${title}")`);
     } catch (err) {
       console.log("FAILED");
-      console.error(`  Error extracting ${filename}:`, err.message);
+      console.error(`  Error extracting ${relPath}:`, err.message);
       // Still list the file (without searchable text) so it's not silently dropped.
       documents.push({
         id: String(i),
         title: titleFromFilename(filename),
         filename,
-        path: `pdfs/${encodeURIComponent(filename)}`,
+        category,
+        path: urlPath,
         pageCount: null,
         preview: "(Could not extract text from this PDF.)",
         text: "",
@@ -131,8 +164,9 @@ async function main() {
     }
   }
 
-  // Sort alphabetically by title for the sidebar listing.
-  documents.sort((a, b) => a.title.localeCompare(b.title));
+  // Sort by category (alphabetically — name folders "A) ...", "B) ..." etc.
+  // to control order), then by title within each category.
+  documents.sort((a, b) => a.category.localeCompare(b.category) || a.title.localeCompare(b.title));
   documents.forEach((d, i) => (d.id = String(i)));
 
   // Build the Lunr index (title boosted over body text).
