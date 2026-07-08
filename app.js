@@ -5,6 +5,10 @@
   const resultCount = document.getElementById("result-count");
   const viewer = document.getElementById("viewer");
   const viewerEmpty = document.getElementById("viewer-empty");
+  
+  // Mobile UI additions
+  const layoutEl = document.querySelector(".layout");
+  const menuToggleBtn = document.getElementById("menu-toggle"); 
 
   let documents = [];
   let docById = new Map();
@@ -107,6 +111,11 @@
     document
       .querySelectorAll(".doc-item")
       .forEach((el) => el.classList.toggle("active", el.dataset.id === doc.id));
+
+    // Mobile Modification: Auto-closes the drawer layout once a document is chosen
+    if (layoutEl) {
+      layoutEl.classList.remove("sidebar-open");
+    }
   }
 
   function runSearch(query) {
@@ -170,6 +179,13 @@
     runSearch("");
     searchInput.focus();
   });
+
+  // Mobile Modification: Clicking the button toggles drawer accessibility
+  if (menuToggleBtn && layoutEl) {
+    menuToggleBtn.addEventListener("click", () => {
+      layoutEl.classList.toggle("sidebar-open");
+    });
+  }
 
   async function init() {
     try {
