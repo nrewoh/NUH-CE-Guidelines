@@ -234,21 +234,33 @@ html, body {
 }
 
 @media (max-width: 800px) {
-  /* Keep layout horizontal, but adjust the proportions */
   .layout {
-    flex-direction: row; 
+    position: relative;
+    overflow: hidden;
   }
 
   .sidebar {
-    width: 35%;          /* Takes up 35% of the screen width */
-    min-width: 140px;    /* Prevents it from becoming unreadably narrow */
-    height: 100%;
-    border-right: 1px solid var(--border);
-    border-bottom: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 300px; /* Safe browsing width for mobile */
+    z-index: 100;
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.1);
+    
+    /* This hides the sidebar off-screen to the left */
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  /* When this class is added to .layout, the sidebar slides into view */
+  .layout.sidebar-open .sidebar {
+    transform: translateX(0);
   }
 
   .content {
-    flex: 1;             /* Takes up the remaining 65% */
-    height: 100%;
+    width: 100%;
+    flex: none; /* Prevents the sidebar from shrinking the content */
   }
+}
 }
