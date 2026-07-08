@@ -31,34 +31,39 @@
   </aside>
 
   <main class="content">
-    <div id="viewer-empty" class="viewer-empty">
-      <p>Select a document from the sidebar to preview it here.</p>
-    </div>
+  <!-- Topbar is now globally anchored so the menu button is always reachable -->
+  <div id="topbar">
+    <button id="btn-menu" title="Toggle Document Directory">☰</button>
     
-    <div id="viewer-container" hidden>
-      <div id="topbar">
-        <button id="btn-menu" title="Toggle Document Directory">☰</button>
-        <div class="page-jump">
-          <button id="btn-prev" title="Previous page">‹</button>
-          <input id="page-input" type="text" value="1">
-          <span>/ <span id="page-count">…</span></span>
-          <button id="btn-next" title="Next page">›</button>
-        </div>
-        <div id="active-doc-title">Loading…</div>
-        <div id="zoom-controls">
-          <button id="btn-zoom-out" title="Zoom out">−</button>
-          <span id="zoom-pct">100%</span>
-          <button id="btn-zoom-in" title="Zoom in">+</button>
-          <button id="btn-fit" title="Fit width">⤢</button>
-        </div>
+    <!-- This inner wrapper holds document tools and hides when empty -->
+    <div id="viewer-controls" class="viewer-controls-wrap" hidden>
+      <div class="page-jump">
+        <button id="btn-prev" title="Previous page">‹</button>
+        <input id="page-input" type="text" value="1">
+        <span>/ <span id="page-count">…</span></span>
+        <button id="btn-next" title="Next page">›</button>
       </div>
-      
-      <div id="pdf-scroll-viewer">
-        <div id="pages-container"></div>
-        <div id="viewer-loading" hidden>Loading document pages…</div>
+      <div id="active-doc-title">Loading…</div>
+      <div id="zoom-controls">
+        <button id="btn-zoom-out" title="Zoom out">−</button>
+        <span id="zoom-pct">100%</span>
+        <button id="btn-zoom-in" title="Zoom in">+</button>
+        <button id="btn-fit" title="Fit width">⤢</button>
       </div>
     </div>
-  </main>
+  </div>
+  
+  <!-- Unselected Default State -->
+  <div id="viewer-empty" class="viewer-empty">
+    <p>Select a document from the sidebar to preview it here.</p>
+  </div>
+  
+  <!-- Continuous Scroll Viewer Viewport Container -->
+  <div id="pdf-scroll-viewer" hidden>
+    <div id="pages-container"></div>
+    <div id="viewer-loading" hidden>Loading document pages…</div>
+  </div>
+</main>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.9/lunr.min.js"></script>
