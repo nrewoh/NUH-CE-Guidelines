@@ -40,7 +40,6 @@
   }
 
   function docItemHtml(doc, terms, showCategoryTag) {
-    const pages = doc.pageCount ? `${doc.pageCount} page${doc.pageCount === 1 ? "" : "s"}` : "";
     const categoryTag = showCategoryTag
       ? `<span class="doc-category-tag">${escapeHtml(doc.category)}</span>`
       : "";
@@ -48,8 +47,6 @@
       <li>
         <a class="doc-item${doc.id === activeId ? " active" : ""}" href="#" data-id="${doc.id}">
           <p class="doc-title">${highlight(doc.title, terms)}${categoryTag}</p>
-          <p class="doc-preview">${highlight(doc.preview, terms)}</p>
-          <p class="doc-meta">${pages}</p>
           <span class="open-link" data-path="${doc.path}">Open in new tab &rarr;</span>
         </a>
       </li>`;
