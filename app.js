@@ -19,6 +19,13 @@
   // explicitly expanded.
   const expandedCategories = new Set();
 
+  // Mobile browsers render PDFs inside an <iframe> very differently from a
+  // full top-level page: only the first page shows, and pinch-zoom is
+  // disabled. There's no CSS/JS fix for that — it's a platform limitation.
+  // So on narrow screens, open the PDF directly (native full viewer, full
+  // multi-page scroll, working pinch-zoom) instead of embedding it.
+  const MOBILE_QUERY = window.matchMedia("(max-width: 800px)");
+
   function escapeHtml(str) {
     return String(str)
       .replace(/&/g, "&amp;")
@@ -104,13 +111,6 @@
     });
   }
 
-  // Mobile browsers render PDFs inside an <iframe> very differently from a
-  // full top-level page: only the first page shows, and pinch-zoom is
-  // disabled. There's no CSS/JS fix for that — it's a platform limitation.
-  // So on narrow screens, open the PDF directly (native full viewer, full
-  // multi-page scroll, working pinch-zoom) instead of embedding it.
-  const MOBILE_QUERY = window.matchMedia("(max-width: 800px)");
-
   function openDoc(doc) {
     activeId = doc.id;
 
@@ -129,11 +129,6 @@
       viewer.hidden = false;
       viewer.src = doc.path;
     }
-  }
-
-    document
-      .querySelectorAll(".doc-item")
-      .forEach((el) => el.classList.toggle("active", el.dataset.id === doc.id));
   }
 
   function runSearch(query) {
