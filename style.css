@@ -336,6 +336,33 @@ html, body {
   border: none;
 }
 
+.pdf-canvas-viewer {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  background: var(--paper);
+  padding: 16px 0 32px;
+}
+
+.pdf-canvas-loading {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.pdf-canvas-loading a {
+  color: var(--teal);
+}
+
+.pdf-page-canvas {
+  display: block;
+  margin: 0 auto 14px;
+  box-shadow: 0 1px 3px rgba(16, 40, 45, 0.12), 0 8px 24px rgba(16, 40, 45, 0.06);
+  background: #ffffff;
+}
+
 /* Responsive: slide-out sidebar with backdrop on narrow screens */
 @media (max-width: 800px) {
   .mobile-header {
