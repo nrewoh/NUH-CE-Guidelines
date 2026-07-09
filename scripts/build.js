@@ -4,7 +4,7 @@
 //    subfolder of pdfs/ (e.g. "pdfs/A) Triage/foo.pdf") are grouped in the
 //    sidebar under that folder name as a category. PDFs sitting directly in
 //    pdfs/ (no subfolder) are grouped under "Uncategorized".
-// 2. Extracts title (PDF metadata, falling back to filename) + full text
+// 2. Extracts title from the filename (ignoring internal PDF metadata) + full text
 // 3. Builds a Lunr.js search index (title + text, title boosted)
 // 4. Writes dist/data/search-index.json (the index) and dist/data/documents.json
 //    (id, title, filename, path, category, preview snippet, page count)
@@ -27,6 +27,12 @@ const UNCATEGORIZED = "Uncategorized";
 // extract text (no rendering to canvas).
 const { getDocument } = await import("pdfjs-dist/legacy/build/pdf.mjs");
 
+// OPTION A: Displays the exact file name as written on GitHub (removes only the .pdf)
+function titleFromFilename(filename) {
+  return path.basename(filename, path.extname(filename));
+}
+
+/* // OPTION B: Cleans up names automatically (swaps dashes/underscores with spaces & capitalizes words)
 function titleFromFilename(filename) {
   return path
     .basename(filename, path.extname(filename))
@@ -35,6 +41,7 @@ function titleFromFilename(filename) {
     .trim()
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
+*/
 
 function collapseWhitespace(str) {
   return str.replace(/\s+/g, " ").trim();
@@ -48,15 +55,7 @@ async function extractPdf(filePath) {
     isEvalSupported: false,
   }).promise;
 
-  let title = null;
-  try {
-    const meta = await doc.getMetadata();
-    if (meta?.info?.Title && meta.info.Title.trim()) {
-      title = meta.info.Title.trim();
-    }
-  } catch {
-    // metadata read failed — fall back to filename below
-  }
+  // Bypassed internal PDF metadata reading completely to prioritize GitHub filename
 
   let text = "";
   for (let i = 1; i <= doc.numPages; i++) {
@@ -66,7 +65,7 @@ async function extractPdf(filePath) {
   }
 
   return {
-    title: title || titleFromFilename(filePath),
+    title: titleFromFilename(filePath),
     text: collapseWhitespace(text),
     pageCount: doc.numPages,
   };
