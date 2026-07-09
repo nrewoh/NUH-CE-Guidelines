@@ -5,8 +5,8 @@
   const resultCount = document.getElementById("result-count");
   const viewer = document.getElementById("viewer");
   const viewerEmpty = document.getElementById("viewer-empty");
+  const canvasViewer = document.getElementById("pdf-canvas-viewer");
 
-  // Layout element selectors (mobile slide-out sidebar)
   const btnMenu = document.getElementById("btn-menu");
   const appLayout = document.getElementById("app-layout");
   const scrim = document.getElementById("scrim");
@@ -15,16 +15,10 @@
   let docById = new Map();
   let idx = null;
   let activeId = null;
-  // Categories are collapsed by default; tracks which ones the user has
-  // explicitly expanded.
   const expandedCategories = new Set();
 
-  // Mobile browsers render PDFs inside an <iframe> very differently from a
-  // full top-level page: only the first page shows, and pinch-zoom is
-  // disabled. There's no CSS/JS fix for that — it's a platform limitation.
-  // So on narrow screens, open the PDF directly (native full viewer, full
-  // multi-page scroll, working pinch-zoom) instead of embedding it.
   const MOBILE_QUERY = window.matchMedia("(max-width: 800px)");
+  let currentMobileDocPath = null;
 
   function escapeHtml(str) {
     return String(str)
@@ -61,9 +55,6 @@
       </li>`;
   }
 
-  // No active search: group into collapsible <details> sections per category
-  // (collapsed by default). During a search: flat list, with a small
-  // category tag per result since matches can span categories.
   function renderList(docs, terms = []) {
     if (!listEl) return;
 
@@ -111,6 +102,40 @@
     });
   }
 
+  async function renderPdfMobile(url) {
+    if (!canvasViewer) return;
+    canvasViewer.innerHTML = `<div class="pdf-canvas-loading">Loading PDF...</div>`;
+
+    try {
+      const pdf = await pdfjsLib.getDocument(url).promise;
+      canvasViewer.innerHTML = "";
+
+      const containerWidth = Math.max(canvasViewer.clientWidth - 24, 200);
+      const dpr = window.devicePixelRatio || 1;
+
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const baseViewport = page.getViewport({ scale: 1 });
+        const scale = containerWidth / baseViewport.width;
+        const viewport = page.getViewport({ scale: scale * dpr });
+
+        const canvas = document.createElement("canvas");
+        canvas.className = "pdf-page-canvas";
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        canvas.style.width = `${containerWidth}px`;
+        canvas.style.height = `${viewport.height / dpr}px`;
+        canvasViewer.appendChild(canvas);
+
+        const ctx = canvas.getContext("2d");
+        await page.render({ canvasContext: ctx, viewport }).promise;
+      }
+    } catch (err) {
+      console.error("Failed to render PDF:", err);
+      canvasViewer.innerHTML = `<div class="pdf-canvas-loading">Could not load this PDF. <a href="${url}" target="_blank" rel="noopener">Open it directly instead</a>.</div>`;
+    }
+  }
+
   function openDoc(doc) {
     activeId = doc.id;
 
@@ -118,18 +143,34 @@
       .querySelectorAll(".doc-item")
       .forEach((el) => el.classList.toggle("active", el.dataset.id === doc.id));
 
+    if (viewerEmpty) viewerEmpty.hidden = true;
+
     if (MOBILE_QUERY.matches) {
-      window.open(doc.path, "_blank");
+      if (viewer) viewer.hidden = true;
+      if (canvasViewer) canvasViewer.hidden = false;
+      currentMobileDocPath = doc.path;
+      renderPdfMobile(doc.path);
       if (appLayout) appLayout.classList.remove("sidebar-open");
       return;
     }
 
-    if (viewerEmpty) viewerEmpty.hidden = true;
+    currentMobileDocPath = null;
+    if (canvasViewer) canvasViewer.hidden = true;
     if (viewer) {
       viewer.hidden = false;
       viewer.src = doc.path;
     }
   }
+
+  let resizeTimer = null;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (currentMobileDocPath && MOBILE_QUERY.matches && canvasViewer && !canvasViewer.hidden) {
+        renderPdfMobile(currentMobileDocPath);
+      }
+    }, 250);
+  });
 
   function runSearch(query) {
     const q = query.trim();
@@ -183,7 +224,6 @@
         window.open(doc.path, "_blank", "noopener");
       } else {
         openDoc(doc);
-        if (appLayout) appLayout.classList.remove("sidebar-open");
       }
     });
   }
@@ -194,7 +234,6 @@
     });
   }
 
-  // Tapping the backdrop closes the mobile sidebar.
   if (scrim && appLayout) {
     scrim.addEventListener("click", () => {
       appLayout.classList.remove("sidebar-open");
