@@ -6,14 +6,18 @@
   const viewer = document.getElementById("viewer");
   const viewerEmpty = document.getElementById("viewer-empty");
 
-  // Layout Element Selectors
+  // Layout element selectors (mobile slide-out sidebar)
   const btnMenu = document.getElementById("btn-menu");
   const appLayout = document.getElementById("app-layout");
+  const scrim = document.getElementById("scrim");
 
   let documents = [];
   let docById = new Map();
   let idx = null;
   let activeId = null;
+  // Categories are collapsed by default; tracks which ones the user has
+  // explicitly expanded.
+  const expandedCategories = new Set();
 
   function escapeHtml(str) {
     return String(str)
@@ -50,15 +54,21 @@
       </li>`;
   }
 
+  // No active search: group into collapsible <details> sections per category
+  // (collapsed by default). During a search: flat list, with a small
+  // category tag per result since matches can span categories.
   function renderList(docs, terms = []) {
     if (!listEl) return;
+
     if (!docs.length) {
-      listEl.innerHTML = `<li class="empty">No documents match your search.</li>`;
+      listEl.innerHTML = `<div class="empty">No documents match your search.</div>`;
       return;
     }
 
     if (terms.length) {
-      listEl.innerHTML = docs.map((doc) => docItemHtml(doc, terms, true)).join("");
+      listEl.innerHTML = `<ul class="doc-items flat">${docs
+        .map((doc) => docItemHtml(doc, terms, true))
+        .join("")}</ul>`;
       return;
     }
 
@@ -76,16 +86,27 @@
     listEl.innerHTML = orderedCategories
       .map((category) => {
         const items = groups.get(category).map((doc) => docItemHtml(doc, terms, false)).join("");
+        const isOpen = expandedCategories.has(category);
         return `
-          <li class="category-header">${escapeHtml(category)}</li>
-          ${items}`;
+          <details class="category-group" data-category="${escapeHtml(category)}" ${isOpen ? "open" : ""}>
+            <summary class="category-header">${escapeHtml(category)}</summary>
+            <ul class="doc-items">${items}</ul>
+          </details>`;
       })
       .join("");
+
+    listEl.querySelectorAll("details.category-group").forEach((details) => {
+      details.addEventListener("toggle", () => {
+        const category = details.dataset.category;
+        if (details.open) expandedCategories.add(category);
+        else expandedCategories.delete(category);
+      });
+    });
   }
 
   function openDoc(doc) {
     activeId = doc.id;
-    
+
     if (viewerEmpty) viewerEmpty.hidden = true;
     if (viewer) {
       viewer.hidden = false;
@@ -142,18 +163,14 @@
       if (!item) return;
       e.preventDefault();
 
-      const docIdStr = String(item.dataset.id);
-      const doc = docById.get(docIdStr);
-      
+      const doc = docById.get(String(item.dataset.id));
       if (!doc) return;
 
       if (openLink) {
         window.open(doc.path, "_blank", "noopener");
       } else {
         openDoc(doc);
-        if (appLayout) {
-          appLayout.classList.remove("sidebar-open");
-        }
+        if (appLayout) appLayout.classList.remove("sidebar-open");
       }
     });
   }
@@ -164,10 +181,17 @@
     });
   }
 
+  // Tapping the backdrop closes the mobile sidebar.
+  if (scrim && appLayout) {
+    scrim.addEventListener("click", () => {
+      appLayout.classList.remove("sidebar-open");
+    });
+  }
+
   if (searchInput) {
     searchInput.addEventListener("input", () => runSearch(searchInput.value));
   }
-  
+
   if (clearBtn && searchInput) {
     clearBtn.addEventListener("click", () => {
       searchInput.value = "";
@@ -182,16 +206,16 @@
         fetch("data/search-index.json").then((r) => r.json()),
         fetch("data/documents.json").then((r) => r.json()),
       ]);
-      
-      documents = docsJson.map(d => ({ ...d, id: String(d.id) }));
+
+      documents = docsJson.map((d) => ({ ...d, id: String(d.id) }));
       docById = new Map(documents.map((d) => [d.id, d]));
-      
+
       idx = lunr.Index.load(indexJson);
       runSearch("");
     } catch (err) {
       console.error("Failed to load library:", err);
       if (listEl) {
-        listEl.innerHTML = `<li class="empty">Could not load the library. Make sure the site was built (see README).</li>`;
+        listEl.innerHTML = `<div class="empty">Could not load the library. Make sure the site was built (see README).</div>`;
       }
     }
   }
