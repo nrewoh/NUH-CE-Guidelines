@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
 <div id="app-layout" class="layout">
   <aside class="sidebar">
     <div class="sidebar-header">
@@ -22,26 +21,22 @@
       </div>
       <div id="result-count" class="result-count"></div>
     </div>
-
-    <ul id="doc-list" class="doc-list">
-      <li class="loading">Loading library...</li>
-    </ul>
+    <div id="doc-list" class="doc-list">
+      <div class="loading">Loading library...</div>
+    </div>
   </aside>
-
+  <div id="scrim"></div>
   <main class="content">
     <div class="mobile-header">
       <button id="btn-menu" class="menu-toggle-btn" title="Toggle Sidebar">☰ Menu</button>
-      <span class="mobile-app-title">PDF Library</span>
+      <span class="mobile-app-title">NUH CE Guidelines</span>
     </div>
-
     <div id="viewer-empty" class="viewer-empty">
       <p>Select a document from the sidebar to preview it here.</p>
     </div>
-
     <iframe id="viewer" class="viewer" title="PDF viewer" hidden></iframe>
   </main>
 </div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.9/lunr.min.js"></script>
 <script src="app.js"></script>
 </body>
